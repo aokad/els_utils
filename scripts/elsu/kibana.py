@@ -183,28 +183,27 @@ def _get_object (url, mode, debug):
 
     __print (">> _get_object ({url}, {mode})".format(url = url, mode = mode), debug)
     
+    cmd_template = "curl -X GET '{kibana_host}/api/saved_objects/_find?type={type}' -s -H 'kbn-xsrf: true' | jq -r '.saved_objects[] | {{id:.id, title:.attributes.title}}'"
+    
     if mode in ["dashboard", "visualization", "index-pattern"]:
-        cmd = "curl -X GET '{kibana_host}/api/saved_objects/_find?type={type}' -s -H 'kbn-xsrf: true' | jq -r '.saved_objects[] | .attributes.title'".format(
-            kibana_host = url, type = mode)
+        cmd = cmd_template.format(kibana_host = url, type = mode)
         return __get_request (cmd, debug)
     
     elif mode == "all":
         print ('=== dashboards ===')
-        cmd = "curl -X GET '{kibana_host}/api/saved_objects/_find?type=dashboard' -s -H 'kbn-xsrf: true' | jq -r '.saved_objects[] | .attributes.title'".format(
-            kibana_host = url)
+        cmd = cmd_template.format(kibana_host = url, type = "dashboard")
         success = __get_request (cmd, debug)
     
         if success:
             print ('=== visualizations ===')
-            cmd = "curl -X GET '{kibana_host}/api/saved_objects/_find?type=visualization' -s -H 'kbn-xsrf: true' | jq -r '.saved_objects[] | .attributes.title'".format(
-                kibana_host = url)
+            cmd = cmd_template.format(kibana_host = url, type = "visualization")
             success = __get_request (cmd, debug)
         
         if success:
             print ('=== index-patterns ===')
-            cmd = "curl -X GET '{kibana_host}/api/saved_objects/_find?type=index-pattern' -s -H 'kbn-xsrf: true' | jq -r '.saved_objects[] | .attributes.title'".format(
-                kibana_host = url)
+            cmd = cmd_template.format(kibana_host = url, type = "index-pattern")
             success = __get_request (cmd, debug)
+        
         return success
     
     elif mode == "challenge":
@@ -435,7 +434,7 @@ def delete_if(args):
     
     success = True
     
-    if delete_dashboard and success:
+    if delete_dashboard:
         if args.type == "dashboard":
             if args.object_id == "":
                 print ("[ERROR] set --object_id option")
