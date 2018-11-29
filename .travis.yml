@@ -1,0 +1,26 @@
+sudo: false
+
+language: python
+
+python:
+  - "2.7"
+  - "3.6"
+
+before_script:
+ - mkdir ~/.aws;
+   echo "[default]" > ~/.aws/credentials;
+   echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials;
+   echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials;
+   echo "[default]" > ~/.aws/config;
+   echo "region = ${AWS_DEFAULT_REGION}" >> ~/.aws/config;
+   echo "output = ${AWS_DEFAULT_OUTPUT}" >> ~/.aws/config;
+
+script:
+  - python setup.py build install
+  - python setup.py test
+
+notifications:
+  emails:
+    - aiokada@hgc.jp
+  on_success: change
+  on_failure: always

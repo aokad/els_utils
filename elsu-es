@@ -1,0 +1,64 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Created on Wed Mar 14 11:53:04 2018
+
+@author: Okada
+"""
+
+import sys
+import argparse
+import elsu.elasticsearch
+from elsu import __version__
+
+def main():
+    prog = "elsu-es"
+    parser = argparse.ArgumentParser(prog = prog)
+    parser.add_argument("--version", action = "version", version = prog + "-" + __version__)
+    subparsers = parser.add_subparsers()
+
+    ##########
+    # get
+    get_parser = subparsers.add_parser("get", help = "view tables or records")
+    get_parser.add_argument("type", choices = ["db", "table", "record"], help = "type", type = str)
+    get_parser.add_argument("--detail", help = "show detail, with type == db", action = 'store_true')
+    get_parser.add_argument("--name", help = "set name, with type == table/record", type = str, default = "")
+    get_parser.add_argument("--debug", help = "show detail log", action = 'store_true')
+    get_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
+    get_parser.set_defaults(func = elsu.elasticsearch.get_if)
+    
+    ##########
+    # post
+    post_parser = subparsers.add_parser("post", help = "post json-file")
+    post_parser.add_argument("file", help = "file_path (.json)", type = str)
+    post_parser.add_argument("--debug", help = "show detail log", action = 'store_true')
+    post_parser.add_argument("--dryrun", help = "print commands", action = 'store_true')
+    post_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
+    post_parser.set_defaults(func = elsu.elasticsearch.post_if)
+    
+    ##########
+    # delete
+    delete_parser = subparsers.add_parser("delete", help = "delete object")
+    delete_parser.add_argument("name", help = "set index", type = str)
+    delete_parser.add_argument("--debug", help = "show detail log", action = 'store_true')
+    delete_parser.add_argument("--dryrun", help = "print commands", action = 'store_true')
+    delete_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
+    delete_parser.set_defaults(func = elsu.elasticsearch.delete_if)
+    
+    argv = sys.argv[1:]
+    if len(argv) < 1:
+        argv = [""]
+        
+    (known_args, unknown_args) = parser.parse_known_args(argv)
+    if len(unknown_args) > 0:
+        if '' in unknown_args:
+            unknown_args.remove('')
+        if len(unknown_args) > 0:
+            print ("This option is invalid.")
+            print (unknown_args)
+    
+    return known_args.func(known_args)
+    
+if __name__ == "__main__":
+    sys.exit(main())

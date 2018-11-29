@@ -1,0 +1,5 @@
+elastic_host: http://ec2-13-112-252-22.ap-northeast-1.compute.amazonaws.com
+kibana_host: http://ec2-13-112-252-22.ap-northeast-1.compute.amazonaws.com/_plugin/kibana
+
+#elastic_host: 192.168.0.1:9200
+#kibana_host: 192.168.0.2:5601
