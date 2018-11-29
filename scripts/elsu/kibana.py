@@ -228,7 +228,7 @@ def __get_object_ids(url, mode, prefix, attr, debug):
             
     address = "{url}/api/saved_objects/_find?type={mode}".format(url = url, mode = mode)
     footer = "-H 'kbn-xsrf: true' | jq -r '.saved_objects[] | {attr}'".format(attr = attr)
-    cmd = "curl -X GET -sS {address} {footer}".format(address = address, footer = footer)
+    cmd = "curl -X GET -sS '{address}' {footer}".format(address = address, footer = footer)
     __print(cmd, debug)
 
     try:
@@ -254,7 +254,7 @@ def _delete_dashboard (url, prefix, delete_all, debug, dryrun):
     
     __print (">> _delete_dashboard ({url}, {prefix}, {delete_all})".format(url = url, prefix = prefix, delete_all = delete_all), debug)
 
-    item = __get_object_ids(url, "dashboard", prefix, ".id", debug) 
+    item = __get_object_ids(url, "dashboard", prefix, ".attributes.title", debug) 
     
     print (item)
     return
@@ -307,7 +307,7 @@ def _delete_visualization (url, prefix, delete_all, debug, dryrun):
     
     __print (">> _delete_visualization ({url}, {prefix})".format(url = url, prefix = prefix), debug)
 
-    item = __get_object_ids(url, "visualization", prefix, ".id", debug) 
+    item = __get_object_ids(url, "visualization", prefix, ".attributes.title", debug) 
     print (item)
     return
     try:
@@ -416,7 +416,7 @@ def _delete_index_patterns (url, prefix, delete_all, debug, dryrun):
 def delete_if(args):
     
     delete_dashboard = (args.type == "dashboard")
-    delete_visulalization = (args.type == "visulalization")
+    delete_visulalization = (args.type == "visualization")
     delete_indexpattern = (args.type == "index-pattern")
     delete_all = False
     object_id = args.object_id
@@ -443,9 +443,9 @@ def delete_if(args):
         print ("=== remove dashboards ... ===")    
         success = _delete_dashboard (__get_url(args.conf), object_id, delete_all, args.debug, args.dryrun)
         print ("=== removed dashboards ===")
-    return success
+    
     if delete_visulalization and success:
-        if args.type == "visulalization":
+        if args.type == "visualization":
             if args.object_id == "":
                 print ("[ERROR] set --object_id option")
                 return False
