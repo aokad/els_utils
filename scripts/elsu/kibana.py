@@ -144,8 +144,8 @@ def _delete_object (url, mode, object_id, debug, dryrun):
         cmd = "curl -X DELETE -sS {kibana_host}/api/saved_objects/{mode}/{id} -H 'kbn-xsrf: true' | jq .".format(
                 kibana_host = url, mode = mode, id = object_id
                 )
-        print (cmd)
         if dryrun:
+            print (cmd)
             return True
             
         res = subprocess.run(cmd, shell =True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
@@ -153,28 +153,19 @@ def _delete_object (url, mode, object_id, debug, dryrun):
         __print (msg, debug)
         
         if "error" in msg:
-            print("[ERROR] [%d] [%s] [%s]" % (msg["status"], msg["error"]["type"], msg["error"]["reason"]))
+            print("[ERROR] %s" % (msg))
             print ("[Failure] delete object %s %s" % (mode, object_id))
             return False
         
-        if msg["errors"] == False:
-            print ("[Success] delete object %s %s" % (mode, object_id))
-            
-        else:
-            for item in msg["items"]:
-                if "error" in item["index"]:
-                    print("[ERROR] %s" % (json.dumps(item["index"]["error"])))
-            print ("[Failure] delete object %s %s" % (mode, object_id))
-            return False
+        print ("[Success] delete object %s %s" % (mode, object_id))
+        return True
         
     except Exception as e:
         print ("[Exception] {0}".format(e))
         print ("[Failure] delete object %s %s" % (mode, object_id))
-        return False
     
-    return True
-
-
+    return False
+    
 def _delete_object_title (url, mode, object_title, debug, dryrun):
     
     __print (">> _delete_object ({url}, {mode}, {object_title})".format(url = url, mode = mode, object_title = object_title), debug)

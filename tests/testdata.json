@@ -1,0 +1,4 @@
+{"index": {"_index": "annual_precipitation", "_type": "rain", "_id": 0}}
+{"city": "Yakushima", "value": "4477.2"}
+{"index": {"_index": "annual_precipitation", "_type": "rain", "_id": 1}}
+{"city": "Ebino", "value": "4693.0"}

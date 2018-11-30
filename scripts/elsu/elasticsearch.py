@@ -130,7 +130,7 @@ def _delete_object (url, index, debug, dryrun):
 
     __print (">> _delete_object ({url}, {index})".format(url = url, index = index), debug)
     
-    cmd = "curl -XDELETE {elastic_host}/{index}".format(elastic_host = url, index = index)
+    cmd = "curl -XDELETE '{elastic_host}/{index}'".format(elastic_host = url, index = index)
     
     if dryrun:
         print (cmd)
@@ -148,15 +148,8 @@ def _delete_object (url, index, debug, dryrun):
             print ("[Failure] delete object %s" % (index))
             return False
         
-        if msg["errors"] == False:
-            print ("[Success] delete object %s" % (index))
-            return True
-        else:
-            for item in msg["items"]:
-                if "error" in item["index"]:
-                    print("[ERROR] %s" % (json.dumps(item["index"]["error"])))
-            print ("[Failure] delete object %s" % (index))
-            return False
+        print ("[Success] delete object %s" % (index))
+        return True
         
     except Exception as e:
         print("[Exception] {0}".format(e))

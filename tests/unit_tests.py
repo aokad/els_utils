@@ -87,10 +87,14 @@ class TestSet(unittest.TestCase):
         subprocess.check_call(['python3', 'elsu-es', 'get'] + options)
 
     def test_es_02_get_02(self):
+        options = ["db", "--detail"]
+        subprocess.check_call(['python3', 'elsu-es', 'get'] + options)
+
+    def test_es_02_get_03(self):
         options = ["table", "--name", "loman-20181121"]
         subprocess.check_call(['python3', 'elsu-es', 'get'] + options)
         
-    def test_es_02_get_03(self):
+    def test_es_02_get_04(self):
         options = ["record", "--name", "loman-20181121"]
         subprocess.check_call(['python3', 'elsu-es', 'get'] + options)
 
