@@ -347,19 +347,19 @@ def _create_dashboard(url, file_path, debug):
 
 def post_if(args):
     
-    if args.mode == "index-pattern":
+    if args.type == "index-pattern":
         if args.index == "":
             print ("[ERROR] set --index option")
             return False
         return _create_indexpattern(__get_url(args.conf), args.index, args.debug)
     
-    elif args.mode == "visualization":
+    elif args.type == "visualization":
         if args.file == "":
             print ("[ERROR] set --file option")
             return False
         return _create_visualization(__get_url(args.conf), args.file, args.debug)
     
-    elif args.mode == "dashboard":
+    elif args.type == "dashboard":
         if args.file == "":
             print ("[ERROR] set --file option")
             return False
