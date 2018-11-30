@@ -104,7 +104,8 @@ def _get_object (url, mode, detail, index, debug):
                 pprint.pprint(json.loads(returncode))
         else:
             returncode = res.stderr.decode('utf-8').rstrip()
-            import pprint 
+            print ("[ERROR] get object")
+            import pprint
             pprint.pprint(json.loads(returncode))
             return False
         

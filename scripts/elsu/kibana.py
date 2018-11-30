@@ -104,13 +104,13 @@ def _get_object (url, mode, object_id, object_title, debug):
         return __print_items (item, object_title)
     
     elif mode == "all":
-        print ('=== dashboards ===')
+        print ('\n[dashboard]')
         item = __get_objects(url, "dashboard", "", "", ".id, .attributes.title", debug) 
         if __print_items (item):
-            print ('=== visualizations ===')
+            print ('\n[visualization]')
             item = __get_objects(url, "visualization", "", "", ".id, .attributes.title", debug) 
             if __print_items (item):
-                print ('=== index-patterns ===')
+                print ('\n[index-pattern]')
                 item = __get_objects(url, "index-pattern", "", "", ".id, .attributes.title", debug)
                 return __print_items (item)
         return False
@@ -130,107 +130,110 @@ def _get_object (url, mode, object_id, object_title, debug):
 
 def get_if(args):
     
-    return _get_object(__get_url(args.conf), args.type, args.object_id, args.object_title, args.debug)
+    return _get_object(__get_url(args.conf), args.type, args.id, args.title, args.debug)
 
 ##########
 # delete
 ##########
 
-def _delete_object (url, mode, object_id, object_title, debug, dryrun):
+def _delete_object (url, mode, object_id, debug, dryrun):
     
-    __print (">> _delete_object ({url}, {mode}, {object_id}, {object_title})".format(url = url, mode = mode, object_id = object_id, object_title = object_title), debug)
+    __print (">> _delete_object ({url}, {mode}, {object_id})".format(url = url, mode = mode, object_id = object_id), debug)
 
-    item = __res_to_list(__get_objects(url, mode, object_id, object_title, ".id, .attributes.title", debug), object_title)
-    
-    if item == None:
-        return False
-    
     try:
-        for text in item:
-            li = text.split(",")
-            index = li[0]
+        cmd = "curl -X DELETE -sS {kibana_host}/api/saved_objects/{mode}/{id} -H 'kbn-xsrf: true' | jq .".format(
+                kibana_host = url, mode = mode, id = object_id
+                )
+        print (cmd)
+        if dryrun:
+            return True
             
-            if mode == "index-pattern" and li[1] == "version":
-                continue
+        res = subprocess.run(cmd, shell =True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        msg = json.loads(res.stdout)
+        __print (msg, debug)
+        
+        if "error" in msg:
+            print("[ERROR] [%d] [%s] [%s]" % (msg["status"], msg["error"]["type"], msg["error"]["reason"]))
+            print ("[Failure] delete object %s %s" % (mode, object_id))
+            return False
+        
+        if msg["errors"] == False:
+            print ("[Success] delete object %s %s" % (mode, object_id))
             
-            cmd = "curl -X DELETE -sS {kibana_host}/api/saved_objects/{mode}/{id} -H 'kbn-xsrf: true' | jq .".format(
-                    kibana_host = url, mode = mode, id = index
-                    )
-            print (cmd)
-            if dryrun:
-                continue
-                
-            res = subprocess.run(cmd, shell =True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-            msg = json.loads(res.stdout)
-            __print (msg, debug)
-            
-            if "error" in msg:
-                print("[ERROR] [%d] [%s] [%s]" % (msg["status"], msg["error"]["type"], msg["error"]["reason"]))
-                print ("[Failure] delete object %s %s" % (mode, index))
-                return False
-            
-            if msg["errors"] == False:
-                print ("[Success] delete object %s %s" % (mode, index))
-                
-            else:
-                for item in msg["items"]:
-                    if "error" in item["index"]:
-                        print("[ERROR] %s" % (json.dumps(item["index"]["error"])))
-                print ("[Failure] delete object %s %s" % (mode, index))
-                return False
+        else:
+            for item in msg["items"]:
+                if "error" in item["index"]:
+                    print("[ERROR] %s" % (json.dumps(item["index"]["error"])))
+            print ("[Failure] delete object %s %s" % (mode, object_id))
+            return False
         
     except Exception as e:
         print ("[Exception] {0}".format(e))
-        print ("[Failure] delete object %s %s" % (mode, index))
+        print ("[Failure] delete object %s %s" % (mode, object_id))
         return False
+    
+    return True
+
+
+def _delete_object_title (url, mode, object_title, debug, dryrun):
+    
+    __print (">> _delete_object ({url}, {mode}, {object_title})".format(url = url, mode = mode, object_title = object_title), debug)
+
+    item = __res_to_list(__get_objects(url, mode, "", object_title, ".id, .attributes.title", debug), object_title)
+    
+    if item == None:
+        return False
+
+    success = True
+    for text in item:
+        [index, title] = text.split(",")
+        
+        if mode == "index-pattern" and title == "version":
+            continue
+        
+        success = _delete_object (url, mode, index, debug, dryrun)
+        if success == False:
+            return False
     
     return True
 
 def delete_if(args):
     
-    delete_dashboard = (args.type == "dashboard")
-    delete_visulalization = (args.type == "visualization")
-    delete_indexpattern = (args.type == "index-pattern")
-    object_id = args.object_id
-    object_title = args.object_title
-    
-    if args.type == "challenge":
-        object_id = ""
-        object_title = "%s*" % (args.challenge_id)
-        delete_dashboard = True
-        delete_visulalization = True
-        delete_indexpattern = True
-    
-    elif args.type == "all":
-        object_id = ""
-        object_title = "*"
-        delete_dashboard = True
-        delete_visulalization = True
-        delete_indexpattern = True
-    
     if args.type in ["dashboard", "visualization", "index-pattern"]:
-        if args.object_id == "" or args.object_title == "":
-            print ("[ERROR] set --object_id or object_title option")
+        if args.id == "" and args.title == "":
+            print ("[ERROR] set --id or --title option")
             return False
         
-    success = True
-    
-    if delete_dashboard:
-        print ("=== remove dashboards ... ===")    
-        success = _delete_object (__get_url(args.conf), "dashboard", object_id, object_title, args.debug, args.dryrun)
-        print ("=== removed dashboards ===")
-    
-    if delete_visulalization and success:
-        print ("=== remove visualizations ... ===")
-        success = _delete_object (__get_url(args.conf), "visualization", object_id, object_title, args.debug, args.dryrun)
-        print ("=== removed visualizations ===")
+        success = True
+        if args.id != "":
+            success = _delete_object (__get_url(args.conf), args.type, args.id, args.debug, args.dryrun)
+        if args.title != "" and success:
+            success = _delete_object_title (__get_url(args.conf), args.type, args.title, args.debug, args.dryrun)
+        
+        return success
+        
+    if args.type == "all":
+        success = _delete_object_title (__get_url(args.conf), "dashboard", "*", args.debug, args.dryrun)
+        if success:
+            success = _delete_object_title (__get_url(args.conf), "visualization", "*", args.debug, args.dryrun)
+            if success:
+                success = _delete_object_title (__get_url(args.conf), "index-pattern", "*", args.debug, args.dryrun)
+        return success
 
-    if delete_indexpattern and success:
-        print ("=== remove index-patterns ... ===")
-        success = _delete_object (__get_url(args.conf), "index-pattern", object_id, object_title, args.debug, args.dryrun)
-        print ("=== removed index-patterns ===")
-    
-    return success
+    if args.type == "challenge":
+        if args.challenge_id == "":
+            print ("[ERROR] set --challenge_id option")
+            return False
+        
+        object_title = "%s*" % (args.challenge_id)
+        success = _delete_object_title (__get_url(args.conf), "dashboard", object_title, args.debug, args.dryrun)
+        if success:
+            success = _delete_object_title (__get_url(args.conf), "visualization", object_title, args.debug, args.dryrun)
+            if success:
+                success = _delete_object_title (__get_url(args.conf), "index-pattern", object_title, args.debug, args.dryrun)
+        return success
+
+    return False
 
 
 ##########

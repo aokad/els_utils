@@ -33,8 +33,8 @@ def main():
     # get
     get_parser = subparsers.add_parser("get", help = "view object")
     get_parser.add_argument("type", choices = ["dashboard", "visualization", "index-pattern", "all", "challenge"], help = "type")
-    get_parser.add_argument("--object_id", help = "set object-id, with type == dashboard/visualization/index-pattern", type = str, default = "")
-    get_parser.add_argument("--object_title", help = "set object-title, with type == dashboard/visualization/index-pattern", type = str, default = "")
+    get_parser.add_argument("--id", help = "set object-id, with type == dashboard/visualization/index-pattern", type = str, default = "")
+    get_parser.add_argument("--title", help = "set object-title, with type == dashboard/visualization/index-pattern", type = str, default = "")
     get_parser.add_argument("--debug", help = "show detail log", action = 'store_true')
     get_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
     get_parser.set_defaults(func = elsu.kibana.get_if)
@@ -44,8 +44,8 @@ def main():
     delete_parser = subparsers.add_parser("delete", help = "delete object")
     delete_parser.add_argument("type", choices = ["dashboard", "visualization", "index-pattern", "all", "challenge"], help = "type")
     delete_parser.add_argument("--challenge_id", help = "set challenge-id, with type == challenge", type = str, default = "")
-    delete_parser.add_argument("--object_id", help = "set object-id, with type == dashboard/visualization/index-pattern", type = str, default = "")
-    delete_parser.add_argument("--object_title", help = "set object-title, with type == dashboard/visualization/index-pattern", type = str, default = "")
+    delete_parser.add_argument("--id", help = "set object-id, with type == dashboard/visualization/index-pattern", type = str, default = "")
+    delete_parser.add_argument("--title", help = "set object-title, with type == dashboard/visualization/index-pattern", type = str, default = "")
     delete_parser.add_argument("--debug", help = "show detail log", action = 'store_true')
     delete_parser.add_argument("--dryrun", help = "print commands", action = 'store_true')
     delete_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
@@ -67,4 +67,6 @@ def main():
     return known_args.func(known_args)
     
 if __name__ == "__main__":
-    sys.exit(main())
+    if main():
+        sys.exit(0)
+    sys.exit(1)
