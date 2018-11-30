@@ -17,10 +17,10 @@ def __get_url(conf):
     data = yaml.load(open(conf))
     return data["kibana_host"]
 
-def __get_objects(url, mode, object_id, object_title, attr, debug):
+def __get_objects(url, mode, object_id, object_title, attr, max_items, debug):
     
-    __print (">> __get_object_ids ({url}, {mode}, {object_id}, {attr})".format(
-        url = url, mode = mode, attr = attr, object_id = object_id), debug
+    __print (">> __get_object_ids ({url}, {mode}, {object_id}, {max_items}, {attr})".format(
+        url = url, mode = mode, attr = attr, object_id = object_id, max_items = max_items), debug
     )
     
     if object_id != "":
@@ -32,12 +32,12 @@ def __get_objects(url, mode, object_id, object_title, attr, debug):
     
     address = "{url}/api/saved_objects/_find".format(url = url)
     
-    query = "?type={mode}&search_fields={type}&per_page=100".format(
-        mode = mode, type = itype
+    query = "?type={mode}&search_fields={type}&per_page={max}".format(
+        mode = mode, type = itype, max = max_items
     )
     if value != "":
-        query = "?type={mode}&search_fields={type}&per_page=100&search={value}".format(
-            mode = mode, value = value, type = itype
+        query = "?type={mode}&search_fields={type}&per_page={max}&search={value}".format(
+            mode = mode, value = value, type = itype, max = max_items
         )
     
     footer = "-H 'kbn-xsrf: true' | jq -r '.saved_objects[] | {attr}'".format(attr = attr)
@@ -94,29 +94,29 @@ def __print_items (item, title_prefix = ""):
         
     return True
 
-def _get_object (url, mode, object_id, object_title, debug):
+def _get_object (url, mode, object_id, object_title, max_items, debug):
 
     __print (">> _get_object ({url}, {mode})".format(url = url, mode = mode), debug)
     
     
     if mode in ["dashboard", "visualization", "index-pattern"]:
-        item = __get_objects(url, mode, object_id, object_title, ".id, .attributes.title", debug) 
+        item = __get_objects(url, mode, object_id, object_title, ".id, .attributes.title", max_items, debug) 
         return __print_items (item, object_title)
     
     elif mode == "all":
         print ('\n[dashboard]')
-        item = __get_objects(url, "dashboard", "", "", ".id, .attributes.title", debug) 
+        item = __get_objects(url, "dashboard", "", "", ".id, .attributes.title", max_items, debug) 
         if __print_items (item):
             print ('\n[visualization]')
-            item = __get_objects(url, "visualization", "", "", ".id, .attributes.title", debug) 
+            item = __get_objects(url, "visualization", "", "", ".id, .attributes.title", max_items, debug) 
             if __print_items (item):
                 print ('\n[index-pattern]')
-                item = __get_objects(url, "index-pattern", "", "", ".id, .attributes.title", debug)
+                item = __get_objects(url, "index-pattern", "", "", ".id, .attributes.title", max_items, debug)
                 return __print_items (item)
         return False
     
     elif mode == "challenge":
-        item = __get_objects(url, "dashboard", "", "*", ".attributes.title", debug)
+        item = __get_objects(url, "dashboard", "", "*", ".attributes.title", max_items, debug)
         if item == None:
             return False
         
@@ -130,7 +130,7 @@ def _get_object (url, mode, object_id, object_title, debug):
 
 def get_if(args):
     
-    return _get_object(__get_url(args.conf), args.type, args.id, args.title, args.debug)
+    return _get_object(__get_url(args.conf), args.type, args.id, args.title, args.max, args.debug)
 
 ##########
 # delete
@@ -170,7 +170,7 @@ def _delete_object_title (url, mode, object_title, debug, dryrun):
     
     __print (">> _delete_object ({url}, {mode}, {object_title})".format(url = url, mode = mode, object_title = object_title), debug)
 
-    item = __res_to_list(__get_objects(url, mode, "", object_title, ".id, .attributes.title", debug), object_title)
+    item = __res_to_list(__get_objects(url, mode, "", object_title, ".id, .attributes.title", 100, debug), object_title)
     
     if item == None:
         return False
