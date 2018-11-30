@@ -32,91 +32,109 @@ class TestSet(unittest.TestCase):
     
     # ES
     def test_es_version(self):
-        subprocess.check_call(['python3', 'elsu-es', '--version'])
+        subprocess.check_call(['python3 elsu-es --version'])
 
     def test_es_post_01(self):
-        cmd = ['python3', 'elsu-es', 'post'] 
-        options = ["tests/testdata.json"]
-        print(cmd + options)
-        subprocess.check_call(cmd + options)
+        cmd = 'python3 elsu-es post tests/testdata.json'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     def test_es_get_01(self):
-        options = ["db"]
-        subprocess.check_call(['python3', 'elsu-es', 'get'] + options)
+        cmd = 'python3 elsu-es get db | head'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     def test_es_get_02(self):
-        options = ["db", "--detail"]
-        subprocess.check_call(['python3', 'elsu-es', 'get'] + options)
+        cmd = 'python3 elsu-es get db --detail | head'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     def test_es_get_03(self):
-        options = ["table", "--name", "annual_precipitation"]
-        subprocess.check_call(['python3', 'elsu-es', 'get'] + options)
+        cmd = 'python3 elsu-es get table --name annual_precipitation'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
         
     def test_es_get_04(self):
-        options = ["record", "--name", "annual_precipitation"]
-        subprocess.check_call(['python3', 'elsu-es', 'get'] + options)
+        cmd = 'python3 elsu-es get record --name annual_precipitation'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     # kibana
-    def test_kibana_post_01(self):
-        options = ["index-pattern", "--index", "annual_precipitation"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'post'] + options)
-
-    """
     def test_kibana_version(self):
-        subprocess.check_call(['python3', 'elsu-kibana', '--version'])
-    
+        cmd = 'python3 elsu-kibana --version'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
+        
+    def test_kibana_post_01(self):
+        cmd = 'python3 elsu-kibana post index-pattern --index annual_precipitation'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
+
     def test_kibana_get_01(self):
-        options = ["all", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
+        cmd = 'python3 elsu-kibana get all --max 3'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     def test_kibana_get_02(self):
-        options = ["all", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
+        cmd = 'python3 elsu-kibana get all --max 3'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
         
     def test_kibana_get_03(self):
-        options = ["dashboard", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
+        cmd = 'python3 elsu-kibana get dashboard --max 3'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     def test_kibana_get_04(self):
-        options = ["dashboard", "--title", "lassie01", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
+        cmd = 'python3 elsu-kibana get dashboard --title lassie01'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     def test_kibana_get_05(self):
-        options = ["dashboard", "--id", "lassie01-hmp-2012-dashboard", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
+        cmd = 'python3 elsu-kibana get dashboard --id lassie01-hmp-2012-dashboard --max 3'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     def test_kibana_get_06(self):
-        options = ["visualization", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
+        cmd = 'python3 elsu-kibana get visualization --max 3'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
         
     def test_kibana_get_07(self):
-        options = ["visualization", "--title", "bamsort-20181107-visualization-title", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
+        cmd = 'python3 elsu-kibana get visualization --title bamsort-20181107-visualization-title --max 3'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     def test_kibana_get_08(self):
-        options = ["visualization", "--id", "bamsort-20181107-visualization-title", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
-    """
+        cmd = 'python3 elsu-kibana get visualization --id bamsort-20181107-visualization-title --max 3'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
+    
     def test_kibana_get_09(self):
-        options = ["index-pattern", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
+        cmd = 'python3 elsu-kibana get "index-pattern" --max 3'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
         
     def test_kibana_get_10(self):
-        options = ["index-pattern", "--title", "annual_precipitation", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
+        cmd = 'python3 elsu-kibana get "index-pattern" --title annual_precipitation'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     def test_kibana_get_11(self):
-        options = ["index-pattern", "--id", "annual_precipitation", "--max", "3"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'get'] + options)
+        cmd = 'python3 elsu-kibana get "index-pattern" --id annual_precipitation --max 3'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
     
     # delete objects
     def test_kibana_delete_01(self):
-        options = ["index-pattern", "--index", "annual_precipitation"]
-        subprocess.check_call(['python3', 'elsu-kibana', 'delete'] + options)
+        cmd = 'python3 elsu-kibana delete annual_precipitation'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
     def test_es_delete_01(self):
-        options = ["annual_precipitation"]
-        subprocess.check_call(['python3', 'elsu-es', 'delete'] + options)
+        cmd = 'python3 elsu-es delete annual_precipitation'
+        print(cmd)
+        subprocess.check_call(cmd, shell = True)
 
 def suite():
     suite = unittest.TestSuite()

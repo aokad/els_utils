@@ -18,10 +18,11 @@ def main():
     parser.add_argument("--version", action = "version", version = prog + "-" + __version__)
     subparsers = parser.add_subparsers()
     
+    type_list= ["d", "dashboard", "v", "visualization", "i", "index-pattern"]
     ##########
     # post
     post_parser = subparsers.add_parser("post", help = "post json-file or create index-pattern")
-    post_parser.add_argument("type", choices = ["dashboard", "visualization", "index-pattern"], help = "type")
+    post_parser.add_argument("type", choices = type_list, help = "type")
     post_parser.add_argument("--index", help = "set index-id, with type == index-pattern", type = str, default = "")
     post_parser.add_argument("--file", help = "set file_path (.json), with type == dashboard/visualization", type = str, default = "")
     post_parser.add_argument("--debug", help = "show detail log", action = 'store_true')
@@ -32,7 +33,7 @@ def main():
     ##########
     # get
     get_parser = subparsers.add_parser("get", help = "view object")
-    get_parser.add_argument("type", choices = ["dashboard", "visualization", "index-pattern", "all", "challenge"], help = "type")
+    get_parser.add_argument("type", choices = type_list + ["all", "challenge"], help = "type")
     get_parser.add_argument("--id", help = "set object-id, with type == dashboard/visualization/index-pattern", type = str, default = "")
     get_parser.add_argument("--title", help = "set object-title, with type == dashboard/visualization/index-pattern", type = str, default = "")
     get_parser.add_argument("--max", help = "Maximum acquisition number", type = int, default = 100)
@@ -43,7 +44,7 @@ def main():
     ##########
     # delete
     delete_parser = subparsers.add_parser("delete", help = "delete object")
-    delete_parser.add_argument("type", choices = ["dashboard", "visualization", "index-pattern", "all", "challenge"], help = "type")
+    delete_parser.add_argument("type", choices = type_list + ["all", "challenge"], help = "type")
     delete_parser.add_argument("--challenge_id", help = "set challenge-id, with type == challenge", type = str, default = "")
     delete_parser.add_argument("--id", help = "set object-id, with type == dashboard/visualization/index-pattern", type = str, default = "")
     delete_parser.add_argument("--title", help = "set object-title, with type == dashboard/visualization/index-pattern", type = str, default = "")
@@ -53,19 +54,16 @@ def main():
     delete_parser.set_defaults(func = elsu.kibana.delete_if)
 
     
-    argv = sys.argv[1:]
-    if len(argv) < 1:
-        argv = [""]
-        
-    (known_args, unknown_args) = parser.parse_known_args(argv)
-    if len(unknown_args) > 0:
-        if '' in unknown_args:
-            unknown_args.remove('')
-        if len(unknown_args) > 0:
-            print ("This option is invalid.")
-            print (unknown_args)
+    args = parser.parse_args(sys.argv[1:])
     
-    return known_args.func(known_args)
+    if args.type == "i":
+        args.type = "index-pattern"
+    elif args.type == "v":
+        args.type = "visualization"
+    elif args.type == "d":
+        args.type = "dashboard"
+
+    return args.func(args)
     
 if __name__ == "__main__":
     if main():
