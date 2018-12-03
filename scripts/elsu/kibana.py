@@ -128,9 +128,11 @@ def _get_object (url, mode, object_id, object_title, max_items, debug):
     
     return False
 
-def get_if(args):
-    
-    return _get_object(__get_url(args.conf), args.type, args.id, args.title, args.max, args.debug)
+def get_if(conf, ttype, tid, title, tmax, debug):
+    return _get_object(__get_url(conf), ttype, tid, title, tmax, debug)
+
+def get_args(args):
+    return get_if(args.conf, args.type, args.id, args.title, args.max, args.debug)
 
 ##########
 # delete
@@ -188,45 +190,47 @@ def _delete_object_title (url, mode, object_title, debug, dryrun):
     
     return True
 
-def delete_if(args):
+def delete_if(conf, ttype, tid, title, challenge_id, debug, dryrun):
     
-    if args.type in ["dashboard", "visualization", "index-pattern"]:
-        if args.id == "" and args.title == "":
+    if ttype in ["dashboard", "visualization", "index-pattern"]:
+        if tid == "" and title == "":
             print ("[ERROR] set --id or --title option")
             return False
         
         success = True
-        if args.id != "":
-            success = _delete_object (__get_url(args.conf), args.type, args.id, args.debug, args.dryrun)
-        if args.title != "" and success:
-            success = _delete_object_title (__get_url(args.conf), args.type, args.title, args.debug, args.dryrun)
+        if tid != "":
+            success = _delete_object (__get_url(conf), ttype, tid, debug, dryrun)
+        if title != "" and success:
+            success = _delete_object_title (__get_url(conf), ttype, title, debug, dryrun)
         
         return success
         
-    if args.type == "all":
-        success = _delete_object_title (__get_url(args.conf), "dashboard", "*", args.debug, args.dryrun)
+    if ttype == "all":
+        success = _delete_object_title (__get_url(conf), "dashboard", "*", debug, dryrun)
         if success:
-            success = _delete_object_title (__get_url(args.conf), "visualization", "*", args.debug, args.dryrun)
+            success = _delete_object_title (__get_url(conf), "visualization", "*", debug, dryrun)
             if success:
-                success = _delete_object_title (__get_url(args.conf), "index-pattern", "*", args.debug, args.dryrun)
+                success = _delete_object_title (__get_url(conf), "index-pattern", "*", debug, dryrun)
         return success
 
-    if args.type == "challenge":
-        if args.challenge_id == "":
+    if ttype == "challenge":
+        if challenge_id == "":
             print ("[ERROR] set --challenge_id option")
             return False
         
-        object_title = "%s*" % (args.challenge_id)
-        success = _delete_object_title (__get_url(args.conf), "dashboard", object_title, args.debug, args.dryrun)
+        object_title = "%s*" % (challenge_id)
+        success = _delete_object_title (__get_url(conf), "dashboard", object_title, debug, dryrun)
         if success:
-            success = _delete_object_title (__get_url(args.conf), "visualization", object_title, args.debug, args.dryrun)
+            success = _delete_object_title (__get_url(conf), "visualization", object_title, debug, dryrun)
             if success:
-                success = _delete_object_title (__get_url(args.conf), "index-pattern", object_title, args.debug, args.dryrun)
+                success = _delete_object_title (__get_url(conf), "index-pattern", object_title, debug, dryrun)
         return success
 
     return False
 
-
+def delete_args(args):
+    delete_if(args.conf, args.type, args.id, args.title, args.challenge_id, args.debug, args.dryrun)
+    
 ##########
 # post
 ##########
@@ -345,26 +349,29 @@ def _create_dashboard(url, file_path, debug):
     print ("[Failure] creted dashboard: %s" % (file_path))
     return False
 
-def post_if(args):
+def post_if(conf, ttype, tfile, index, debug):
     
-    if args.type == "index-pattern":
-        if args.index == "":
+    if ttype == "index-pattern":
+        if index == "":
             print ("[ERROR] set --index option")
             return False
-        return _create_indexpattern(__get_url(args.conf), args.index, args.debug)
+        return _create_indexpattern(__get_url(conf), index, debug)
     
-    elif args.type == "visualization":
-        if args.file == "":
+    elif ttype == "visualization":
+        if tfile == "":
             print ("[ERROR] set --file option")
             return False
-        return _create_visualization(__get_url(args.conf), args.file, args.debug)
+        return _create_visualization(__get_url(conf), tfile, debug)
     
-    elif args.type == "dashboard":
-        if args.file == "":
+    elif ttype == "dashboard":
+        if tfile == "":
             print ("[ERROR] set --file option")
             return False
-        return _create_dashboard(__get_url(args.conf), args.file, args.debug)
+        return _create_dashboard(__get_url(conf), tfile, debug)
 
+def post_args(args):
+    post_if(args.conf, args.type, args.file, args.index, args.debug)
+    
 
 if __name__ == "__main__":
     pass

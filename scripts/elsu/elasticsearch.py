@@ -59,8 +59,24 @@ def _post_datafile(url, file_path, debug, dryrun):
     print ("[Failure] post datafile %s" % (file_path))
     return False
 
-def post_if(args):
-    return _post_datafile(__get_url(args.conf), args.file, args.debug, args.dryrun)
+def post_if(conf, tfile, index, ttype, debug, dryrun):
+    import os
+    [prefix, ext] = os.path.splitext(tfile)
+    
+    post_file = tfile
+    
+    if ext.lower() != "json":
+        if index == "" or ttype == "":
+            print ("[ERROR] set --index and --type option")
+            return False
+        import elsu.convert_to_post
+        post_file = prefix + ".json"
+        elsu.convert_to_post.to_json(tfile, index, ttype, post_file)
+        
+    return _post_datafile(__get_url(conf), post_file, debug, dryrun)
+
+def post_args(args):
+    return post_if(args.conf, args.file, args.index, args.type, args.debug, args.dryrun)
 
 ##########
 # get
@@ -116,14 +132,17 @@ def _get_object (url, mode, detail, index, debug):
     
     return True
 
-def get_if(args):
-    if args.type in ["table", "record"]:
-        if args.name == "":
+def get_if(conf, ttype, name, detail, debug):
+    if ttype in ["table", "record"]:
+        if name == "":
             print ("[ERROR] set --name option")
             return False
-    return _get_object(__get_url(args.conf), args.type, args.detail, args.name, args.debug)
+    return _get_object(__get_url(conf), ttype, detail, name, debug)
 
-##########
+def get_args(args):
+    return get_if(args.conf, args.type, args.name, args.detail, args.debug)
+
+    ##########
 # delete
 ##########
 def _delete_object (url, index, debug, dryrun):
@@ -157,8 +176,11 @@ def _delete_object (url, index, debug, dryrun):
     print ("[Failure] delete object %s" % (index))
     return False
 
-def delete_if(args):
-    return _delete_object(__get_url(args.conf), args.name, args.debug, args.dryrun)
+def delete_if(conf, name, debug, dryrun):
+    return _delete_object(__get_url(conf), name, debug, dryrun)
+
+def delete_args(args):
+    return delete_if(args.conf, args.name, args.debug, args.dryrun)
     
 if __name__ == "__main__":
     pass

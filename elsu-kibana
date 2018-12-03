@@ -28,7 +28,7 @@ def main():
     post_parser.add_argument("--debug", help = "show detail log", action = 'store_true')
     post_parser.add_argument("--dryrun", help = "print commands", action = 'store_true')
     post_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
-    post_parser.set_defaults(func = elsu.kibana.post_if)
+    post_parser.set_defaults(func = elsu.kibana.post_args)
 
     ##########
     # get
@@ -39,7 +39,7 @@ def main():
     get_parser.add_argument("--max", help = "Maximum acquisition number", type = int, default = 100)
     get_parser.add_argument("--debug", help = "show detail log", action = 'store_true')
     get_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
-    get_parser.set_defaults(func = elsu.kibana.get_if)
+    get_parser.set_defaults(func = elsu.kibana.get_args)
     
     ##########
     # delete
@@ -51,7 +51,7 @@ def main():
     delete_parser.add_argument("--debug", help = "show detail log", action = 'store_true')
     delete_parser.add_argument("--dryrun", help = "print commands", action = 'store_true')
     delete_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
-    delete_parser.set_defaults(func = elsu.kibana.delete_if)
+    delete_parser.set_defaults(func = elsu.kibana.delete_args)
 
     
     args = parser.parse_args(sys.argv[1:])
