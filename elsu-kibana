@@ -53,16 +53,18 @@ def main():
     delete_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
     delete_parser.set_defaults(func = elsu.kibana.delete_args)
 
-    
     args = parser.parse_args(sys.argv[1:])
     
-    if args.type == "i":
-        args.type = "index-pattern"
-    elif args.type == "v":
-        args.type = "visualization"
-    elif args.type == "d":
-        args.type = "dashboard"
-
+    try:
+        if args.type == "i":
+            args.type = "index-pattern"
+        elif args.type == "v":
+            args.type = "visualization"
+        elif args.type == "d":
+            args.type = "dashboard"
+    except Exception:
+        pass
+        
     return args.func(args)
     
 if __name__ == "__main__":

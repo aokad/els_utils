@@ -65,7 +65,7 @@ def post_if(conf, tfile, index, ttype, debug, dryrun):
     
     post_file = tfile
     
-    if ext.lower() != "json":
+    if ext.lower() != ".json":
         if index == "" or ttype == "":
             print ("[ERROR] set --index and --type option")
             return False
