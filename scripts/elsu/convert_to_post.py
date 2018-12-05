@@ -34,7 +34,7 @@ def _convert(text, vtype = None):
 
     return text
 
-def to_json(input_file, index_name, type_name, output_file, splt = None):
+def to_json(input_file, index_name, type_name, output_file, splt = None, start_id = 0):
     
     if splt == None:
         ext = input_file.split(".")[-1].lower()
@@ -48,7 +48,7 @@ def to_json(input_file, index_name, type_name, output_file, splt = None):
     f = open(output_file, "w")
     
     header = []
-    index = 0
+    tid = start_id
     
     for l in open(input_file).readlines():
         col = l.rstrip().replace('"', "").split(splt)
@@ -60,7 +60,7 @@ def to_json(input_file, index_name, type_name, output_file, splt = None):
             "index": {
                 "_index": index_name,
                 "_type": type_name,
-                "_id": index
+                "_id": tid
             }
         }
         item2 = {}
@@ -83,7 +83,7 @@ def to_json(input_file, index_name, type_name, output_file, splt = None):
         json.dump(item2, f, ensure_ascii=False)
         f.write("\n")
         
-        index += 1
+        tid += 1
         
     f.close()
     

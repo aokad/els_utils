@@ -59,7 +59,7 @@ def _post_datafile(url, file_path, debug, dryrun):
     print ("[Failure] post datafile %s" % (file_path))
     return False
 
-def post_if(conf, tfile, index, ttype, debug, dryrun):
+def post_if(conf, tfile, index, ttype, start_id, debug, dryrun):
     import os
     [prefix, ext] = os.path.splitext(tfile)
     
@@ -71,12 +71,12 @@ def post_if(conf, tfile, index, ttype, debug, dryrun):
             return False
         import elsu.convert_to_post
         post_file = prefix + ".json"
-        elsu.convert_to_post.to_json(tfile, index, ttype, post_file)
+        elsu.convert_to_post.to_json(tfile, index, ttype, post_file, start_id = start_id)
         
     return _post_datafile(__get_url(conf), post_file, debug, dryrun)
 
 def post_args(args):
-    return post_if(args.conf, args.file, args.index, args.type, args.debug, args.dryrun)
+    return post_if(args.conf, args.file, args.index, args.type, args.start_id, args.debug, args.dryrun)
 
 ##########
 # get

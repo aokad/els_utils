@@ -34,6 +34,7 @@ def main():
     post_parser.add_argument("file", help = "file_path (.json or .csv)", type = str)
     post_parser.add_argument("--index", help = "set index, with file is csv", type = str, default = "")
     post_parser.add_argument("--type", help = "set type, with file is csv", type = str, default = "")
+    post_parser.add_argument("--start_id", help = "set type, with file is csv", type = int, default = 0)
     post_parser.add_argument("--debug", help = "show detail log", action = 'store_true')
     post_parser.add_argument("--dryrun", help = "print commands", action = 'store_true')
     post_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
@@ -48,19 +49,9 @@ def main():
     delete_parser.add_argument("--conf", help = "path to conf.yml", type = str, default = "conf.yml")
     delete_parser.set_defaults(func = elsu.elasticsearch.delete_args)
     
-    argv = sys.argv[1:]
-    if len(argv) < 1:
-        argv = [""]
-        
-    (known_args, unknown_args) = parser.parse_known_args(argv)
-    if len(unknown_args) > 0:
-        if '' in unknown_args:
-            unknown_args.remove('')
-        if len(unknown_args) > 0:
-            print ("This option is invalid.")
-            print (unknown_args)
-    
-    return known_args.func(known_args)
+    args = parser.parse_args(sys.argv[1:])
+     
+    return args.func(args)
     
 if __name__ == "__main__":
     if main():
